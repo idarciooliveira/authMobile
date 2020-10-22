@@ -4,6 +4,7 @@ import Contansts from 'expo-constants'
 
 import Button from '../components/AppButton';
 import useAuth from '../auth/useAuth';
+import ActivityIndicator from '../components/ActivityIndicator';
 
 import locationApi  from '../api/location';
 
@@ -11,9 +12,15 @@ export default function Home() {
 
     const [locationPoints, setLocationPoints] = useState([]);
     const {user,logout }  = useAuth();
+    const [error, setError] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     const loadLocationPoints= async()=>{
+        setLoading(true)
         const response = await locationApi.getLocations();
+        if(!response.ok) return setError(true);
+        setLoading(false);
+        setError(false);
         setLocationPoints(response.data);
     }
     
@@ -23,9 +30,19 @@ export default function Home() {
 
     return (
             <View style={styles.container}>
+
+                <ActivityIndicator visible={loading}/>
+
                 <Text style={styles.text}>Welcome</Text>
                 <Text style={styles.text}>{user.name}</Text>
                 <Button title='Logout' onPress={()=> logout()}/>
+                
+                {error && 
+                    <>
+                       <Text style={styles.text}>Nao foi possivel conectar com o servidor</Text>
+                       <Button title='Tentar Novamente' onPress={loadLocationPoints}/>
+                    </>}
+                
                 <ScrollView style={{width: '100%'}}>
                    {locationPoints.map(location=> (
                         <View key={location.id} style={styles.card}>
