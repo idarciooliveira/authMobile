@@ -7,22 +7,14 @@ import useAuth from '../auth/useAuth';
 import ActivityIndicator from '../components/ActivityIndicator';
 
 import locationApi  from '../api/location';
+import useApi from '../hooks/useApi';
 
 export default function Home() {
 
-    const [locationPoints, setLocationPoints] = useState([]);
     const {user,logout }  = useAuth();
-    const [error, setError] = useState(false);
-    const [loading, setLoading] = useState(false);
+    const {data: locationPoints, error, loading, request: loadLocationPoints } = useApi(locationApi.getLocations);
 
-    const loadLocationPoints= async()=>{
-        setLoading(true)
-        const response = await locationApi.getLocations();
-        if(!response.ok) return setError(true);
-        setLoading(false);
-        setError(false);
-        setLocationPoints(response.data);
-    }
+
     
     useEffect(()=>{
         loadLocationPoints(); 
